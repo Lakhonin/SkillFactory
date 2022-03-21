@@ -1,0 +1,87 @@
+Started by user unknown or anonymous
+Obtained pipeline from git https://github.com/Lakhonin/B8_PW
+[Pipeline] Start of Pipeline
+[Pipeline] properties
+[Pipeline] node
+Running on Jenkins in /var/lib/jenkins/workspace/nginx
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+ > git rev-parse --resolve-git-dir /var/lib/jenkins/workspace/nginx/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/Lakhonin/B8_PW # timeout=10
+Fetching upstream changes from https://github.com/Lakhonin/B8_PW
+ > git --version # timeout=10
+ > git --version # 'git version 2.25.1'
+ > git fetch --tags --force --progress -- https://github.com/Lakhonin/B8_PW +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision 9297882647ca751218a8425cdd3d1db23e3d71f2 (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 9297882647ca751218a8425cdd3d1db23e3d71f2 # timeout=10
+Commit message: "Update pipeline"
+ > git rev-list --no-walk 6becec056f5823a5fda9693227ec4db1ec782b19 # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timestamps
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Publish)
+[Pipeline] sh
+18:15:11  + cd /tmp
+18:15:11  + git clone https://github.com/Lakhonin/B8_PW.git
+18:15:11  Cloning into 'B8_PW'...
+[Pipeline] sh
+18:15:12  + docker run --name test-nginx -p 9889:80 -v /tmp/B8_PW/docker:/usr/share/nginx/html -v /tmp/B8_PW/docker:/var/log/nginx -d nginx:alpine
+18:15:12  7435cc83e9989fcf259dbf70237cd12a3ffe9d99509262afc674c46d88950eaa
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (statuscode)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+18:15:13  + curl -o /dev/null -s -w %{http_code}
+18:15:13   -I http://51.250.3.211:9889
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (md5sum)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+18:15:14  + cut -d   -f 1
+18:15:14  + md5sum
+18:15:14  + curl -sL https://raw.githubusercontent.com/Lakhonin/B8_PW/main/docker/index.html
+[Pipeline] sh
+18:15:14  + cut -d   -f 1
+18:15:14  + md5sum /tmp/B8_PW/docker/index.html
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Remove)
+[Pipeline] sh
+18:15:15  + docker stop test-nginx
+18:15:15  test-nginx
+18:15:15  + docker rm test-nginx
+18:15:15  test-nginx
+18:15:15  + rm -r /tmp/B8_PW
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timestamps
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS

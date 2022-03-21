@@ -1,0 +1,54 @@
+properties([disableConcurrentBuilds()])
+pipeline {
+      agent any
+        options {
+           timestamps()
+        }
+    stages {
+        stage('Publish') {
+            steps {
+                  sh 'cd /tmp && git clone https://github.com/Lakhonin/B8_PW.git'
+                  sh 'docker run --name test-nginx -p 9889:80 -v /tmp/B8_PW/docker:/usr/share/nginx/html -v /tmp/B8_PW/docker:/var/log/nginx -d nginx:alpine'
+            }
+        }
+        stage('statuscode') {
+            steps {
+                script {
+                  def statuscode = sh(script:"curl -o /dev/null -s -w '%{http_code}\n' -I http://51.250.3.211:9889", returnStdout: true).trim()
+                  if (statuscode != "200") {
+                   withCredentials([string(credentialsId: 'botSecret', variable: 'TOKEN'), string(credentialsId: 'chatId', variable: 'CHAT_ID')]) {
+                   sh  ("""
+                   curl -s -X POST https://api.telegram.org/bot${TOKEN}/sendMessage -d chat_id=${CHAT_ID} -d parse_mode=markdown -d text='*${env.JOB_NAME}* : *Branch*: ${env.GIT_BRANCH} *statuscode* ${statuscode} : `not OK`'
+                   """)
+                   }                  
+                  }
+                  else {
+
+                  }
+                }
+            }
+        }  
+        stage('md5sum') {
+            steps {
+                script {
+                  online_md5 = sh (script:"curl -sL https://raw.githubusercontent.com/Lakhonin/B8_PW/main/docker/index.html | md5sum | cut -d ' ' -f 1", returnStdout: true)
+                  local_md5 = sh (script:"md5sum '/tmp/B8_PW/docker/index.html' | cut -d ' ' -f 1", returnStdout: true)
+                  if (online_md5 == local_md5) {
+                  }
+                  else {
+                   withCredentials([string(credentialsId: 'botSecret', variable: 'TOKEN'), string(credentialsId: 'chatId', variable: 'CHAT_ID')]) {
+                   sh  ("""
+                   curl -s -X POST https://api.telegram.org/bot${TOKEN}/sendMessage -d chat_id=${CHAT_ID} -d parse_mode=markdown -d text='*${env.JOB_NAME}* : *Branch*: ${env.GIT_BRANCH} *md5sum* : `not OK`'
+                   """)
+                   }
+                  }
+                }
+             }
+        }  
+        stage('Remove') {
+            steps {
+                  sh 'docker stop test-nginx && docker rm test-nginx && rm -r /tmp/B8_PW'
+            }
+        }        
+    }
+}

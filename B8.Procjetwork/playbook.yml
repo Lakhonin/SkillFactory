@@ -1,0 +1,108 @@
+- hosts: master
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+
+  tasks:
+     - name: download Jenkins repo apt url
+       apt_key:
+        url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+        state: present
+
+     - name: added Jenkins repo
+       apt_repository:
+        repo='deb http://pkg.jenkins.io/debian-stable binary/'
+        state=present
+
+     - name: apt update
+       apt:
+        update_cache: yes
+
+     - name: install java
+       apt:
+        name: openjdk-11-jdk
+        state: present
+
+     - name: install jenkins
+       apt:
+        name: jenkins
+        state: present
+
+     - name: start jenkins
+       service:
+        name: jenkins
+        enabled: true
+        state: started
+        
+     - name: install git
+       apt:
+        name: git
+        state: present
+     
+     - name: Install packages that allow apt to be used over HTTPS
+       apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+       vars:
+        packages:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg-agent
+        - software-properties-common
+        - python3-pip  
+      
+     - name: Add an apt signing key for Docker
+       apt_key:
+         url: https://download.docker.com/linux/ubuntu/gpg
+         state: present
+ 
+     - name: Add apt repository for stable version of docker
+       apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+
+     - name: Install docker and its dependecies
+       apt: 
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+       vars:
+        packages:
+        - docker-ce 
+        - docker-ce-cli 
+        - containerd.io
+       
+     - name: Install Docker python package
+       pip:
+        name: docker
+
+     - name: Add ubuntu user to docker group
+       user:
+        name: ubuntu
+        group: docker
+  
+     - name: Restart docker
+       service:
+        name: docker
+        enabled: yes
+        daemon_reload: yes
+        state: restarted 
+
+     - name: Pull nginx docker image
+       docker_image:
+        name: nginx
+        source: pull
+      
+     - name: Add jenkins user to docker group
+       user:
+         name: jenkins
+         group: docker
+
+     - name: Restart Jenkins
+       service:
+         name: jenkins
+         enabled: yes
+         daemon_reload: yes
+         state: restarted
