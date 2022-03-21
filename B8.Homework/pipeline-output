@@ -1,0 +1,67 @@
+Started by GitHub push by Lakhonin
+Checking out git https://github.com/Lakhonin/B8_HW.git into /var/lib/jenkins/workspace/sf@script/7d05b0538902b07e0e0a97ff24f3d5143b157a7122711e809786be8ec9b1dc44 to read pipeline
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+ > git rev-parse --resolve-git-dir /var/lib/jenkins/workspace/sf@script/7d05b0538902b07e0e0a97ff24f3d5143b157a7122711e809786be8ec9b1dc44/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/Lakhonin/B8_HW.git # timeout=10
+Fetching upstream changes from https://github.com/Lakhonin/B8_HW.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.25.1'
+ > git fetch --tags --force --progress -- https://github.com/Lakhonin/B8_HW.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision 2179ef943bf6081ad4c3f08b0fb27e0f82423d38 (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 2179ef943bf6081ad4c3f08b0fb27e0f82423d38 # timeout=10
+Commit message: "Update select.sql"
+ > git rev-list --no-walk c13866ff532472288643434fbaa3ca288fc1526d # timeout=10
+[Pipeline] Start of Pipeline
+[Pipeline] properties
+[Pipeline] node
+Running on Jenkins in /var/lib/jenkins/workspace/sf
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+ > git rev-parse --resolve-git-dir /var/lib/jenkins/workspace/sf/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/Lakhonin/B8_HW.git # timeout=10
+Fetching upstream changes from https://github.com/Lakhonin/B8_HW.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.25.1'
+ > git fetch --tags --force --progress -- https://github.com/Lakhonin/B8_HW.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision 2179ef943bf6081ad4c3f08b0fb27e0f82423d38 (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 2179ef943bf6081ad4c3f08b0fb27e0f82423d38 # timeout=10
+Commit message: "Update select.sql"
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timestamps
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (check change file)
+[Pipeline] sh
+22:52:04  + cd /tmp
+22:52:04  + git clone https://github.com/Lakhonin/B8_HW
+22:52:04  Cloning into 'B8_HW'...
+22:52:05  + mysql --user rfamro --host mysql-rfam-public.ebi.ac.uk --port 4497 --database Rfam
+22:52:05  rfam_acc	rfamseq_acc	seq_start	seq_end	bit_score	evalue_score	cm_start	cm_end	truncated	type	is_significant
+22:52:05  RF00001	DS562887.1	11698675	11698792	82.20	2.4e-12	1	119	0	full	1
+22:52:05  + rm -rf /tmp/B8_HW
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timestamps
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS

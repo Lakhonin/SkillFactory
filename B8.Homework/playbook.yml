@@ -1,0 +1,45 @@
+- hosts: master
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+
+  tasks:
+     - name: download Jenkins repo apt url
+       apt_key:
+        url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+        state: present
+
+     - name: added Jenkins repo
+       apt_repository:
+        repo='deb http://pkg.jenkins.io/debian-stable binary/'
+        state=present
+
+     - name: apt update
+       apt:
+        update_cache: yes
+
+     - name: install java
+       apt:
+        name: openjdk-11-jdk
+        state: present
+
+     - name: install jenkins
+       apt:
+        name: jenkins
+        state: present
+
+     - name: start jenkins
+       service:
+        name: jenkins
+        enabled: true
+        state: started
+        
+     - name: install git
+       apt:
+        name: git
+        state: present
+        
+      - name: install mysql-client-core-8.0
+       apt:
+        name: mysql-client-core-8.0
+        state: present        

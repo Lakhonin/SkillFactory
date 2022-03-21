@@ -1,0 +1,14 @@
+properties([disableConcurrentBuilds()])
+pipeline {
+      agent any
+        options {
+           timestamps()
+        }
+    stages {
+        stage('check file') {
+            steps {
+                  sh 'cd /tmp && git clone https://github.com/Lakhonin/B8_HW && mysql --user rfamro --host mysql-rfam-public.ebi.ac.uk --port 4497 --database Rfam < "/tmp/B8_HW/select.sql" && rm -rf /tmp/B8_HW'              
+            }
+        }
+    }
+}    
