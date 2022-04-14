@@ -1,0 +1,7 @@
+---
+# handlers file for nginx_php
+- name: php-fpm handler
+  service: name=php7.2-fpm state=restarted
+
+- name: nginx handler
+  service: name=nginx state=restarted

@@ -1,0 +1,41 @@
+---
+# tasks file for nginx_php
+- name: Install packages
+  apt:
+     name: "{{ packages }}"
+     state: present
+     update_cache: yes
+  vars:
+      packages:
+      - nginx
+      - php7.2-fpm
+
+- name: copy nginx default conf 
+  copy: 
+     src: default
+     dest: /etc/nginx/sites-available/
+
+- name: ensure listen = /run/php/php7.2-fpm.sock in /etc/php/7.2/fpm/pool.d/www.conf
+  lineinfile:
+     path: /etc/php/7.2/fpm/pool.d/www.conf
+     regexp: ";listen = /run/php/php7.2-fpm.sock"
+     line: "listen = /run/php/php7.2-fpm.sock"
+     state: present
+  notify:
+  - php-fpm handler   
+
+- name: create directory /opt/nginx/ansible/
+  file:
+     path: "{{ item }}"
+     state: directory
+  loop:
+    - /opt
+    - /opt/nginx
+    - /opt/nginx/ansible
+
+- name: copy index.php
+  copy: 
+     src: index.php
+     dest: /opt/nginx/ansible
+  notify: 
+  - nginx handler
