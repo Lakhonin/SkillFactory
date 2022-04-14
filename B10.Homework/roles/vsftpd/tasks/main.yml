@@ -1,0 +1,12 @@
+---
+- name: Install packages that allow apt to be used over HTTPS
+  apt:
+      name: vsftpd
+      state: present
+      update_cache: yes
+  notify: 
+  - vsftpd status    
+
+- name: configure vsftpd
+  command: sed -e "s/[#]write_enable=YES/write_enable=YES/g" -i '/etc/vsftpd.conf'
+

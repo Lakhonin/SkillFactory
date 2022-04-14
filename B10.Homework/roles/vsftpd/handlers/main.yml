@@ -1,0 +1,5 @@
+---
+# handlers file for vsftpd
+
+- name: vsftpd status
+  service: name=vsftpd state=started
