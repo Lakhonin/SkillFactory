@@ -1,0 +1,25 @@
+- hosts: master
+  become: true
+  become_user: root
+  
+  tasks:
+
+  - name: install postfix
+    apt:
+      name: postfix
+      state: present
+      update_cache: yes
+    notify:
+      - postfix status
+    tags: init_postfix  
+
+  - name: uninstall postfix
+    apt:
+      name: postfix
+      state: absent
+      update_cache: no
+    tags: drop_postfix  
+
+  handlers:
+    - name: postfix status
+      service: name=postfix state=restarted
