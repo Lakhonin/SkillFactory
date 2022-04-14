@@ -1,0 +1,27 @@
+---
+
+- hosts: master
+  become: true
+  become_user: root
+  tasks:
+
+  - name: create group superusers
+    group:
+      name: superusers
+      state: present
+
+  - name: create user
+    user:
+      name: "{{ item.name }}"
+      state: present
+      groups: "superusers, sudo"
+    loop:
+      - {name: 'user2'}
+      - {name: 'user3'}
+     
+  - name: configure sudoers file
+    lineinfile:
+      path: /etc/sudoers
+      state: present       
+      line: '%superusers ALL=(ALL) ALL'
+      validate: /usr/sbin/visudo -cf %s
