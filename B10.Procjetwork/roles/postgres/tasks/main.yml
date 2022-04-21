@@ -1,0 +1,43 @@
+---
+# tasks file for postgres
+  - name: Add an apt signing key for PostGre
+    apt_key:
+      url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+      state: present
+
+  - name: Add apt repository for stable version of PostGre
+    apt_repository:
+      repo: deb http://apt.postgresql.org/pub/repos/apt focal-pgdg main
+      state: present
+
+  - name: Install Postgre
+    apt:
+      name: postgresql-{{ postgresql_version }}
+      state: present
+      update_cache: yes
+    
+  - name: change postgres pg hba access
+    lineinfile:
+      path: /etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf
+      regexp: 'host  all  all 0.0.0.0/0 md5'
+      line: 'host  all  all 0.0.0.0/0 md5'
+
+  - name: Ensure PostgreSQL data directory exists
+    file:
+       path: "{{ postgresql_data_directory }}"
+       owner: postgres
+       group: postgres
+       state: directory
+       mode: 0700
+
+  - name: change postgres database directory
+    lineinfile:
+      path: /etc/postgresql/{{ postgresql_version }}/main/postgresql.conf
+      search_string: 'data_directory ='
+      line: data_directory = '{{ postgresql_data_directory }}'
+
+  - name: setup listen address and restart postgre
+    command: "{{ item }}"
+    loop:
+      - sed -e "s/[#]\?listen_addresses = .*/listen_addresses = '*'/g" -i '/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf'
+      - systemctl restart postgresql

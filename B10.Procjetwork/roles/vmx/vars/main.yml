@@ -1,0 +1,3 @@
+---
+# vars file for vmx
+user_for_ansible: "ansible"

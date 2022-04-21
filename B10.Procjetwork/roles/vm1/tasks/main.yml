@@ -1,0 +1,42 @@
+---
+# tasks file for vm1
+
+- name: Install Ansible
+  apt: 
+      name: ansible
+      update_cache: yes
+
+- name: Create user 
+  user:
+      name: "{{ user_for_ansible }}"
+      shell: /bin/bash
+  tags: usr
+
+- name: Create directory for ssh key
+  file: 
+    path: "/home/{{ user_for_ansible }}/.ssh"
+    mode: 0600
+    owner: "{{ user_for_ansible }}"
+    group: "{{ user_for_ansible }}"
+    state: directory
+  tags: keys
+  
+- name: Copy an ssh key public
+  copy:
+    src: "files/id_rsa.pub"
+    dest: "/home/{{ user_for_ansible }}/.ssh/id_rsa.pub"
+  tags: keys
+
+- name: Copy an ssh keypair main
+  copy:
+    src: "files/id_rsa"
+    dest: "/home/{{ user_for_ansible }}/.ssh/id_rsa"
+  tags: keys
+
+- name: create authorized_keys
+  copy:
+    src: "files/id_rsa.pub"
+    dest: "/home/{{ user_for_ansible }}/.ssh/authorized_keys"
+  tags: keys
+
+  

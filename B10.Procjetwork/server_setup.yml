@@ -1,0 +1,181 @@
+---
+
+- hosts: master
+  become: true
+  become_user: root
+  tasks:
+
+  - name: Setting hostname 
+    command: hostnamectl set-hostname webapptestmachine
+
+
+  # Install Docker and its dependent components.
+  - name: Install packages that allow apt to be used over HTTPS
+    apt:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common
+
+  - name: Add an apt signing key for Docker
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Add apt repository for stable version of docker
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+      state: present
+
+  - name: Install docker and its dependecies
+    apt: 
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - docker-ce 
+      - docker-ce-cli 
+      - containerd.io
+    notify:
+      - docker status
+
+  - name: Add ubuntu user to docker group
+    user:
+      name: ubuntu
+      group: docker
+  
+  - name: Restart docker
+    service:
+      name: docker
+      enabled: yes
+      daemon_reload: yes
+      state: restarted 
+
+  - name: Add an apt signing key for PostGre
+    apt_key:
+      url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+      state: present
+
+  - name: Add apt repository for stable version of PostGre
+    apt_repository:
+      repo: deb http://apt.postgresql.org/pub/repos/apt bionic-pgdg main
+      state: present
+
+  - name: Install Postgre
+    apt:
+      name: postgresql-14
+      state: present
+      update_cache: yes
+    notify:
+      - postgre status  
+
+  - name: change postgres pg hba access
+    lineinfile:
+      path: /etc/postgresql/14/main/pg_hba.conf
+      regexp: 'host  all  all 0.0.0.0/0 md5'
+      line: 'host  all  all 0.0.0.0/0 md5'
+
+
+  - name: setup listen address and restart postgre
+    command: "{{ item }}"
+    loop:
+      - sed -e "s/[#]\?listen_addresses = .*/listen_addresses = '*'/g" -i '/etc/postgresql/14/main/postgresql.conf'
+      - systemctl restart postgresql
+
+  - name: Install python modules
+    apt: 
+      name: "{{ packages }}"
+      state: present
+    vars:
+      packages:
+      - python3-psycopg2
+      - acl #need for become user postgre
+      - python3-docker
+
+  - name: create a testuser
+    postgresql_user:
+      name: "pr9testuser"
+      password: "12345"
+    become: yes
+    become_user: postgres
+
+  - name: create test database
+    postgresql_db:
+      name: pr9testdb
+    become: yes
+    become_user: postgres
+
+  - name: Ensure we have access from the new user
+    become: yes
+    become_user: postgres
+    postgresql_privs:
+      db: pr9testdb
+      role: pr9testuser
+      objs: ALL_IN_SCHEMA
+      privs: SELECT,INSERT,UPDATE,DELETE
+
+  - name: create dirs
+    file:
+      path: "{{ item }}"
+      state: directory
+    loop:
+      - /home/ubuntu/docker
+      - /srv/app
+      - /srv/app/conf
+
+  - name: copy dockerfile
+    copy: 
+      src: "{{ inventory_dir }}/docker/Dockerfile"
+      dest: /home/ubuntu/docker/Dockerfile
+
+  - name: copy web.conf
+    copy: 
+      src: "{{ inventory_dir }}/DEVOPS-praktikum_Docker/web.conf"
+      dest: /srv/app/conf/web.conf
+
+  - name: copy web.py
+    copy: 
+      src: "{{ inventory_dir }}/DEVOPS-praktikum_Docker/web.py"
+      dest: /srv/app/web.py
+
+  - name: create hard link
+    file:
+      src: /srv/app/conf/web.conf
+      dest: /home/ubuntu/docker/web.conf
+      state: hard
+
+  - name: build container image
+    docker_image:
+      name: webappimage
+      build:
+        path: /home/ubuntu/docker
+      source: build
+
+  - name: do facts module to get latest information
+    setup:
+
+  - name: set_fact | figure out network device of private network
+    set_fact:
+      docker_interface: "{{ hostvars[inventory_hostname]['ansible_docker0']['ipv4']['address'] }}"
+    
+  - name: print docker network interface address
+    debug:
+       msg: "{{ docker_interface }}"
+
+  - name: run docker container
+    command: docker run -d --rm -p 80:5000 --name test -v /srv/app/:/srv/app/ --add-host webapptestmachine:{{ hostvars[inventory_hostname]['ansible_docker0']['ipv4']['address'] }}  webappimage
+
+  #Setup a handlers
+  handlers:
+    - name: docker status
+      service: name=docker state=started
+
+    - name: postgre status
+      service: name=postgresql state=started

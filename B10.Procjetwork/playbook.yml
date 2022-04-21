@@ -1,0 +1,16 @@
+---
+
+
+- hosts: database
+  become: true
+  become_user: root
+  roles:
+      - vm1   
+      - postgres
+
+- hosts: app
+  become: true
+  become_user: root
+  roles:
+      - vmx
+      - docker
