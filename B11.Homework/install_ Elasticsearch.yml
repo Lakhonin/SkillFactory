@@ -1,0 +1,58 @@
+- name: Install Elasticsearch on Ubuntu
+  hosts: elastsrv
+  become: yes
+  gather_facts: False
+  tasks:
+    - name: Update apt repo and cache on all Ubuntu box
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade all packages on servers
+      apt:
+        upgrade: dist
+        force_apt_get: yes
+
+    - name: Set hostname
+      hostname:
+        name: elastsrv.citizix.com
+
+    - name: Install Common packages
+      apt:
+        name:
+          - vim
+          - wget
+        state: latest
+
+    - name: Import the Elasticsearch PGP Key
+      shell: |
+        wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+      args:
+        warn: no
+
+    - name: Add repository defiition
+      copy:
+        dest: /etc/apt/sources.list.d/elastic-7.x.list
+        content: |
+          deb https://artifacts.elastic.co/packages/7.x/apt stable main
+
+    - name: Install the Elasticsearch package
+      apt:
+        name: elasticsearch
+        state: present
+        update_cache: yes
+      notify:
+        - Start Elasticsearch
+        - Enable Elasticsearch
+
+  handlers:
+    - name: Start Elasticsearch
+      systemd:
+        name: elasticsearch
+        state: started
+
+    - name: Enable Elasticsearch
+      systemd:
+        name: elasticsearch
+        enabled: yes
