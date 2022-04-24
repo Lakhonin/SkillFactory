@@ -1,0 +1,6 @@
+- name: Install Packages
+  apt: name= state=latest update_cache=yes
+  with_items:
+    - apt-transport-https
+    - openssl
+    - default-jdk
