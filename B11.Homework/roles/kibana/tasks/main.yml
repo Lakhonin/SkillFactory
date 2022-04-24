@@ -1,0 +1,36 @@
+---
+# Important: If you plan to install Kibana on already installed elasticsearch node, you will start from the third task.
+# if not, and you will install Kibana on clean instance, please start from first and second tasks.
+- name: Import the Elastic Key
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+- name: Adding Kibana APT repository
+  apt_repository:
+    repo: deb https://artifacts.elastic.co/packages/7.x/apt stable main
+    state: present
+    filename: kibana-7.x.list
+    update_cache: yes
+# Install Kibana
+- name: Update repositories cache and install Kibana
+  apt:
+    name: kibana
+    update_cache: yes
+# Configure kibana.yml
+- name: Configure kibana.yml File
+  copy:
+    src: /path/to/your/conf/kibana.yml
+    dest: /etc/kibana/kibana.yml
+# Enable Kibana service
+- name: Enabling Kibana service
+  systemd:
+    name: kibana
+    enabled: yes
+    daemon_reload: yes
+# Start Kibana service
+- name: Starting Kibana service
+  systemd:
+    name: kibana
+    state: started
+- name: Ensure Kibana is running
+  systemd: state=started name=kibana
