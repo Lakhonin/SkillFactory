@@ -1,0 +1,31 @@
+- name: setup prerequisites
+  hosts: server2
+  become: true
+  roles:
+    - pre-requisites
+    - configure-hosts-file
+- name: install elasticsearch
+  hosts: server2
+  serial: 1
+  become: true
+  roles:
+    - install-elasticsearch
+- name: configure elasticsearch
+  hosts: server2
+  serial: 1
+  become: true
+  roles:
+    - configure-elastic-file
+    - change-permissions
+    - systemd-conf
+    - restart-elasticsearch
+- name: Install Kibana
+  hosts: server2
+  become: true
+  roles:
+    - kibana
+- name: Install logstash
+  hosts: server2
+  become: true
+  roles:
+    - logstash
