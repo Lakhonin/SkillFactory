@@ -1,0 +1,10 @@
+---
+- name: restart elasticsearch after change configuration by configure-elastic-file role
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: elasticsearch
+- name: ensure elasticsearch is running
+  systemd:
+    state=started
+    name=elasticsearch
