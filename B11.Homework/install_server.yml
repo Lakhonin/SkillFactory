@@ -3,7 +3,6 @@
   become: true
   roles:
     - pre-requisites
-    - configure-hosts-file
 - name: install elasticsearch
   hosts: server2
   serial: 1
