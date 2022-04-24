@@ -1,0 +1,8 @@
+---
+- name: set elasticsearch permissions
+  file:
+    path: /usr/share/elasticsearch
+    state: directory
+    recurse: yes
+    owner: elasticsearch
+    group: elasticsearch
