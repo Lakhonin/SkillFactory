@@ -1,7 +1,0 @@
----
-
-- hosts: master
-  become: true
-  become_user: root
-  roles:
-  - dnsmasq
