@@ -1,0 +1,12 @@
+- name: Set min JVM Heap size.
+  lineinfile:
+    dest: /etc/elasticsearch/jvm.options
+    regexp: "^-Xms"
+    line: "-Xms{{ elasticsearch_jvm_xms }}"
+  tags:
+    - config
+- name: Set max JVM Heap size.
+  lineinfile:
+    dest: /etc/elasticsearch/jvm.options
+    regexp: "^-Xmx"
+    line: "-Xmx{{ elasticsearch_jvm_xmx }}"
