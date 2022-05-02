@@ -1,0 +1,5 @@
+server.host: "0.0.0.0"
+xpack.security.enabled: true
+xpack.security.enabled: true
+elasticsearch.username: "kibana_system"
+elasticsearch.password: "v"
