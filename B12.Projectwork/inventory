@@ -1,0 +1,6 @@
+[master]
+VM01 ansible_host=51.250.88.39
+VM02 ansible_host=51.250.78.118
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
