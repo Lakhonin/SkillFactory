@@ -12,10 +12,10 @@ services:
   black-exporter:
     image: prom/blackbox-exporter:latest
     hostname: black-exporter
+    environment:
+      - config.file="/config.yml"
     volumes:
-      - ./black-exporter/blackbox.yml:/config/blackbox.yml
-    command:
-      - '--config.file=/config/blackbox.yml'
+      - ./blackbox-exporter.yml:/config.yml
     ports:
       - '9115:9115'
 
