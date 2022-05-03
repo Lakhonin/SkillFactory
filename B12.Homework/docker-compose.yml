@@ -9,17 +9,26 @@ services:
     ports:
       - '9090:9090'
  
-  blackbox:
+  black-exporter:
     image: prom/blackbox-exporter:latest
-    privileged: true
+    hostname: black-exporter
     volumes:
-      - ./blackbox_exporter:/etc/blackbox_exporter
+      - ./black-exporter/blackbox.yml:/config/blackbox.yml
+    command:
+      - '--config.file=/config/blackbox.yml'
     ports:
       - '9115:9115'
- 
+
   node-exporter:
     image: prom/node-exporter:latest
     privileged: true
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
     ports:
       - '9100:9100'
  
