@@ -1,18 +1,38 @@
 version: '3'
-
+ 
 services:
   prometheus:
-    image: prom/prometheus
-    container_name: prometheus
-    hostname: prometheus
-    restart: always
-    ports:
-      - 9000:9090
+    image: prom/prometheus:latest
+    privileged: true
     volumes:
       - ./prometheus:/etc/prometheus
-      - prometheus-data:/prometheus
-    command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - '9090:9090'
+ 
+  blackbox:
+    image: prom/blackbox-exporter:latest
+    privileged: true
+    volumes:
+      - ./blackbox_exporter:/etc/blackbox_exporter
+    ports:
+      - '9115:9115'
+ 
+  node-exporter:
+    image: prom/node-exporter:latest
+    privileged: true
+    ports:
+      - '9100:9100'
+ 
+  grafana:
+    image: grafana/grafana:latest
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
 
-volumes:
-  prometheus-data:
-
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - "9093:9093"
+    volumes:
+      - "./alertmanager:/config"
