@@ -1,0 +1,15 @@
+groups:
+  - name: DemoAlerts
+    rules:
+      - alert: InstanceDown 
+        expr: up{job="services"} < 1 
+        for: 5m
+      - alert: 5s_probe_duration_seconds 
+        expr: avg(probe_duration_seconds{}) > 5 
+        for: 5m 
+      - alert: restartServer 
+        expr: node_time_seconds{instance="node-exporter:9100"} - node_boot_time_seconds{instance="node-exporter:9100"} < 10 
+        for: 5m 
+      - alert: statusCode 
+        expr: probe_http_status_code{instance="https://lms.skillfactory.ru", job="blackbox"} != 200 
+        for: 5m 
